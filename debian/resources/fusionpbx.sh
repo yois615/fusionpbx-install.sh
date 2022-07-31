@@ -32,4 +32,8 @@ chown -R www-data:www-data /var/cache/fusionpbx
 
 #get the source code
 git clone $branch https://github.com/fusionpbx/fusionpbx.git /var/www/fusionpbx
+(
+	cd /var/www/fusionpbx
+	git reset bc1e163c898ea2e410787f8 --hard
+)
 chown -R www-data:www-data /var/www/fusionpbx

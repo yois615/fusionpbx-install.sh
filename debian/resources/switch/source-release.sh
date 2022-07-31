@@ -91,18 +91,22 @@ fi
 
 #1.10.0 and newer
 if [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
-	wget http://files.freeswitch.org/freeswitch-releases/freeswitch-$switch_version.-release.zip
-	unzip freeswitch-$switch_version.-release.zip
-	rm -R freeswitch
-	mv freeswitch-$switch_version.-release freeswitch
+#	wget http://files.freeswitch.org/freeswitch-releases/freeswitch-$switch_version.-release.zip
+#	unzip freeswitch-$switch_version.-release.zip
+#	rm -R freeswitch
+#	mv freeswitch-$switch_version.-release freeswitch
+	cd /usr/src
+	git clone https://github.com/yois615/freeswitch.git
+	cd freeswitch
+	git checkout 1.10.7-CORPIT
 	cd /usr/src/freeswitch
 fi
 
 # bootstrap is needed if using git
-#./bootstrap.sh -j
+./bootstrap.sh -j
 
 #apply patch
-patch -u /usr/src/freeswitch/src/mod/databases/mod_pgsql/mod_pgsql.c -i /usr/src/fusionpbx-install.sh/debian/resources/switch/source/mod_pgsql.patch
+#patch -u /usr/src/freeswitch/src/mod/databases/mod_pgsql/mod_pgsql.c -i /usr/src/fusionpbx-install.sh/debian/resources/switch/source/mod_pgsql.patch
 
 # enable required modules
 #sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_avmd:applications/mod_avmd:'
@@ -114,8 +118,8 @@ sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_nibblebill:appli
 sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_curl:applications/mod_curl:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#formats/mod_shout:formats/mod_shout:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#formats/mod_pgsql:formats/mod_pgsql:'
-sed -i /usr/src/freeswitch/modules.conf -e s:'#say/mod_say_es:say/mod_say_es:'
-sed -i /usr/src/freeswitch/modules.conf -e s:'#say/mod_say_fr:say/mod_say_fr:'
+#sed -i /usr/src/freeswitch/modules.conf -e s:'#say/mod_say_es:say/mod_say_es:'
+#sed -i /usr/src/freeswitch/modules.conf -e s:'#say/mod_say_fr:say/mod_say_fr:'
 
 #disable module or install dependency libks to compile signalwire
 sed -i /usr/src/freeswitch/modules.conf -e s:'applications/mod_signalwire:#applications/mod_signalwire:'
@@ -126,7 +130,7 @@ sed -i /usr/src/freeswitch/modules.conf -e s:'endpoints/mod_verto:#endpoints/mod
 #./configure --prefix=/usr/local/freeswitch --enable-core-pgsql-support --disable-fhs
 ./configure -C --enable-portable-binary --disable-dependency-tracking \
 --prefix=/usr --localstatedir=/var --sysconfdir=/etc \
---with-openssl --enable-core-pgsql-support
+--with-openssl --enable-core-pgsql-support --enable-address-sanitizer
 
 # compile and install
 make
