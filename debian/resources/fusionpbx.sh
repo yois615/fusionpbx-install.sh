@@ -19,9 +19,10 @@ if [ .$system_branch = .'master' ]; then
 	verbose "Using master"
 	branch=""
 else
-	system_major=$(git ls-remote --heads https://github.com/fusionpbx/fusionpbx.git | cut -d/ -f 3 | grep -P '^\d+\.\d+' | sort | tail -n 1 | cut -d. -f1)
-	system_minor=$(git ls-remote --tags https://github.com/fusionpbx/fusionpbx.git $system_major.* | cut -d/ -f3 |  grep -P '^\d+\.\d+' | sort | tail -n 1 | cut -d. -f2)
-	system_version=$system_major.$system_minor
+	system_major=$(git ls-remote --heads https://github.com/yois615/fusionpbx.git | cut -d/ -f 3 | grep -P '^\d+\.\d+' | sort | tail -n 1 | cut -d. -f1)
+	system_minor=$(git ls-remote --tags https://github.com/yois615/fusionpbx.git $system_major.* | cut -d/ -f3 |  grep -P '^\d+\.\d+' | sort | tail -n 1 | cut -d. -f2)
+	#system_version=$system_major.$system_minor
+	system_version=$system_branch
 	verbose "Using version $system_version"
 	branch="-b $system_version"
 fi
@@ -31,5 +32,5 @@ mkdir -p /var/cache/fusionpbx
 chown -R www-data:www-data /var/cache/fusionpbx
 
 #get the source code
-git clone $branch https://github.com/fusionpbx/fusionpbx.git /var/www/fusionpbx
+git clone $branch https://github.com/yois615/fusionpbx.git /var/www/fusionpbx
 chown -R www-data:www-data /var/www/fusionpbx

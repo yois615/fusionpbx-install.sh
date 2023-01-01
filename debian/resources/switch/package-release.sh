@@ -12,6 +12,20 @@ apt-get update && apt-get install -y curl memcached haveged apt-transport-https
 apt-get update && apt-get install -y gnupg gnupg2
 apt-get update && apt-get install -y wget lsb-release
 
+mkdir /usr/src/freeswitch-debs
+tar -zxvf ./package/freeswitch_1.10.7~release~26~7684ac122bb1c~buster.tar.gz -C /usr/src/freeswitch-debs
+# run gpg scipt and edit sources.list to add local repo
+/usr/src/freeswitch-debs/gpg_key.sh
+cat /usr/src/freeswitch-debs/sources.list > /etc/apt/sources.list.d/freeswitch.list
+# edit apt prefs to use local version
+cat << EOF > /etc/apt/preferences.d/freeswitch.pref
+Package: *
+Pin: origin ""
+Pin-Priority: 1001
+EOF
+# update apt
+apt update
+
 apt-get update
 apt-get install -y gdb ntp
 apt-get install -y freeswitch-meta-bare freeswitch-conf-vanilla freeswitch-mod-commands freeswitch-mod-console freeswitch-mod-logfile
