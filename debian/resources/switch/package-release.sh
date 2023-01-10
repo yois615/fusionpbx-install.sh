@@ -13,7 +13,7 @@ apt-get update && apt-get install -y gnupg gnupg2
 apt-get update && apt-get install -y wget lsb-release
 
 mkdir /usr/src/freeswitch-debs
-tar -zxvf ./package/freeswitch_1.10.7~release~26~7684ac122bb1c~buster.tar.gz -C /usr/src/freeswitch-debs
+tar -zxvf ./package/freeswitch_1.10.7~release~27~ff41389f706~buster.tar.gz -C /usr/src/freeswitch-debs
 # run gpg scipt and edit sources.list to add local repo
 /usr/src/freeswitch-debs/gpg_key.sh
 cat /usr/src/freeswitch-debs/sources.list > /etc/apt/sources.list.d/freeswitch.list
