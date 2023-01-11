@@ -22,7 +22,7 @@ rm -R /usr/src/dehydrated
 #rm -R /var/www/dehydrated
 
 #request the domain name, email address and wild card domain
-read -p 'Domain Name: ' domain_name
+read -p 'Domain Name(s) (Space Delimited): ' domain_name
 read -p 'Email Address: ' email_address
 
 #get and install dehydrated
