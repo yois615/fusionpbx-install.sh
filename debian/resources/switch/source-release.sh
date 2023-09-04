@@ -16,7 +16,7 @@ apt install -y pkg-config flac  libgdbm-dev libdb-dev gettext sudo equivs mlocat
 apt install -y liblua5.2-dev libtiff5-dev libperl-dev libcurl4-openssl-dev libsqlite3-dev libpcre3-dev
 apt install -y devscripts libspeexdsp-dev libspeex-dev libldns-dev libedit-dev libopus-dev libmemcached-dev
 apt install -y libshout3-dev libmpg123-dev libmp3lame-dev yasm nasm libsndfile1-dev libuv1-dev libvpx-dev
-apt install -y libavformat-dev libswscale-dev libvlc-dev python3-distutils
+apt install -y libavformat-dev libswscale-dev libvlc-dev python3-distutils sox
 
 #install dependencies that depend on the operating system version
 if [ ."$os_codename" = ."stretch" ]; then
@@ -69,6 +69,8 @@ if [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
 	cd /usr/src
 	git clone https://github.com/freeswitch/spandsp.git spandsp
 	cd spandsp
+ 	git reset --hard 0d2e6ac65e0e8f53d652665a743015a88bf048d4
+ 	/usr/bin/sed -i 's/AC_PREREQ(\[2\.71\])/AC_PREREQ([2.69])/g' /usr/src/spandsp/configure.ac
 	sh autogen.sh
 	./configure
 	make
@@ -120,6 +122,7 @@ sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_cidlookup:applic
 sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_memcache:applications/mod_memcache:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_nibblebill:applications/mod_nibblebill:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_curl:applications/mod_curl:'
+sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_translate:applications/mod_translate:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#formats/mod_shout:formats/mod_shout:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#formats/mod_pgsql:formats/mod_pgsql:'
 sed -i /usr/src/freeswitch/modules.conf -e s:'#say/mod_say_es:say/mod_say_es:'
@@ -139,13 +142,6 @@ sed -i /usr/src/freeswitch/modules.conf -e s:'endpoints/mod_verto:#endpoints/mod
 # compile and install
 make
 make install
-make sounds-install moh-install
-make hd-sounds-install hd-moh-install
-make cd-sounds-install cd-moh-install
-
-#move the music into music/default directory
-mkdir -p /usr/share/freeswitch/sounds/music/default
-mv /usr/share/freeswitch/sounds/music/*000 /usr/share/freeswitch/sounds/music/default
 
 #return to the executing directory
 cd $CWD

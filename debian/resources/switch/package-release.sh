@@ -10,7 +10,7 @@ cd "$(dirname "$0")"
 
 apt-get update && apt-get install -y curl memcached haveged apt-transport-https
 apt-get update && apt-get install -y gnupg gnupg2
-apt-get update && apt-get install -y wget lsb-release
+apt-get update && apt-get install -y wget lsb-release sox
 
 mkdir /usr/src/freeswitch-debs
 tar -zxvf ./package/freeswitch_1.10.7~release~33~c58772a9fd~buster.tar.gz -C /usr/src/freeswitch-debs
