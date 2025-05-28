@@ -28,6 +28,9 @@ fi
 if [ ."$os_codename" = ."bullseye" ]; then
 	apt install -y libvpx6 swig4.0
 fi
+if [ ."$os_codename" = ."bookworm" ]; then
+	apt install -y libvpx7 swig4.0
+fi
 
 # additional dependencies
 apt install -y sqlite3 unzip
@@ -54,20 +57,20 @@ if [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
 
 	# sofia-sip
 	cd /usr/src
-	#git clone https://github.com/freeswitch/sofia-sip.git sofia-sip
-	wget https://github.com/freeswitch/sofia-sip/archive/refs/tags/v$sofia_version.zip
-	unzip v$sofia_version.zip
-	cd sofia-sip-$sofia_version
-	sh autogen.sh
-	./configure --enable-debug
-	make -j $(getconf _NPROCESSORS_ONLN)
-	make install
+    rm -dfr sofia-sip
+    git clone https://github.com/freeswitch/sofia-sip.git
+    cd sofia-sip
+    git checkout v1.13.17
+    ./bootstrap.sh
+    ./configure
+    make
+    sudo make install
 
 	# spandsp
 	cd /usr/src
 	git clone https://github.com/freeswitch/spandsp.git spandsp
 	cd spandsp
- 	git reset --hard 0d2e6ac65e0e8f53d652665a743015a88bf048d4
+ 	#git reset --hard 0d2e6ac65e0e8f53d652665a743015a88bf048d4
  	#/usr/bin/sed -i 's/AC_PREREQ(\[2\.71\])/AC_PREREQ([2.69])/g' /usr/src/spandsp/configure.ac
 	sh autogen.sh
 	./configure --enable-debug
@@ -83,7 +86,7 @@ if [ $switch_branch = "master" ]; then
 	#master branch
 	echo "Using version master"
 	rm -r /usr/src/freeswitch
-	git clone https://github.com/signalwire/freeswitch.git
+	git clone -b 1.10.12-CORPIT https://github.com/yois615/freeswitch.git
 	cd /usr/src/freeswitch
 	./bootstrap.sh -j
 fi
