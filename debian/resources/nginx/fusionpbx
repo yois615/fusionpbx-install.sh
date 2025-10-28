@@ -14,7 +14,7 @@ server {
 	}
 
 	location ~ \.php$ {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_index index.php;
 		include fastcgi_params;
@@ -23,7 +23,7 @@ server {
 
 	# Allow the upgrade routines to run longer than normal
 	location = /core/upgrade/index.php {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_read_timeout 15m;
 		fastcgi_index index.php;
@@ -91,8 +91,7 @@ server {
 	rewrite "^.*/provision/cfg([A-Fa-f0-9]{12})(\.(xml|cfg))?$" /app/provision/?mac=$1;
 	rewrite "^.*/provision/([A-Fa-f0-9]{12})/phonebook\.xml$" /app/provision/?mac=$1&file=phonebook.xml;
 	rewrite "^.*/provision/(phonebook\.xml)?$" /app/provision/index.php?file=$1 last;
-	#grandstream-wave softphone by ext because Android doesn't pass MAC.
-	rewrite "^.*/provision/([0-9]{5})/cfg([A-Fa-f0-9]{12}).xml$" /app/provision/?ext=$1;
+	rewrite "^.*/provision/phonebook.xml$" /app/provision/?mac=$1&file=phonebook.xml;
 
 	#aastra
 	rewrite "^.*/provision/aastra.cfg$" /app/provision/?mac=$1&file=aastra.cfg;
@@ -145,7 +144,7 @@ server {
 	}
 
 	location ~ \.php$ {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_read_timeout 15m;
 		fastcgi_index index.php;
@@ -155,7 +154,7 @@ server {
 
 	# Allow the upgrade routines to run longer than normal
 	location = /core/upgrade/index.php {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_read_timeout 15m;
 		fastcgi_index index.php;
@@ -200,6 +199,15 @@ server {
 	ssl_session_timeout     2h;
 	ssl_session_tickets     off;
 
+	#redirect websockets to port 8080
+	location /websockets/ {
+		proxy_pass http://127.0.0.1:8080;
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+		proxy_set_header Host $host;
+	}
+
 	#redirect letsencrypt to dehydrated
 	location ^~ /.well-known/acme-challenge {
 		default_type "text/plain";
@@ -231,8 +239,7 @@ server {
 	rewrite "^.*/provision/cfg([A-Fa-f0-9]{12})(\.(xml|cfg))?$" /app/provision/?mac=$1;
 	rewrite "^.*/provision/([A-Fa-f0-9]{12})/phonebook\.xml$" /app/provision/?mac=$1&file=phonebook.xml;
 	rewrite "^.*/provision/(phonebook\.xml)?$" /app/provision/index.php?file=$1 last;
-	#grandstream-wave softphone by ext because Android doesn't pass MAC.
-	rewrite "^.*/provision/([0-9]{5})/cfg([A-Fa-f0-9]{12}).xml$" /app/provision/?ext=$1;
+	rewrite "^.*/provision/phonebook.xml$" /app/provision/?mac=$1&file=phonebook.xml;
 
 	#aastra
 	rewrite "^.*/provision/aastra.cfg$" /app/provision/?mac=$1&file=aastra.cfg;
@@ -285,7 +292,7 @@ server {
 	}
 
 	location ~ \.php$ {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_read_timeout 15m;
 		fastcgi_index index.php;
@@ -295,7 +302,7 @@ server {
 
 	# Allow the upgrade routines to run longer than normal
 	location = /core/upgrade/index.php {
-		fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+		fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
 		#fastcgi_pass 127.0.0.1:9000;
 		fastcgi_read_timeout 15m;
 		fastcgi_index index.php;
@@ -323,3 +330,5 @@ server {
 		deny all;
 	}
 }
+
+
