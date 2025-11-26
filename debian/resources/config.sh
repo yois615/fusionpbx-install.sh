@@ -3,7 +3,7 @@
 domain_name=ip_address                      # hostname, ip_address or a custom value
 system_username=admin                       # default username admin
 system_password=random                      # random or a custom value
-system_branch=5.4.7-CORPIT                  # master, 5.4.7
+system_branch=5.4.9-CORPIT                  # master, 5.4.9
 
 # FreeSWITCH Settings
 switch_branch=master                        # master, stable
