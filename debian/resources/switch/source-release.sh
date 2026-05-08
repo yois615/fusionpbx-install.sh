@@ -17,6 +17,7 @@ apt install -y liblua5.2-dev libtiff5-dev libperl-dev libcurl4-openssl-dev libsq
 apt install -y devscripts libspeexdsp-dev libspeex-dev libldns-dev libedit-dev libopus-dev libmemcached-dev
 apt install -y libshout3-dev libmpg123-dev libmp3lame-dev yasm nasm libsndfile1-dev libuv1-dev libvpx-dev
 apt install -y libavformat-dev libswscale-dev libvlc-dev sox libsox-fmt-all
+apt install -y libpcre3-dev libtiff5-dev
 
 #install dependencies that depend on the operating system version
 if [ ."$os_codename" = ."noble" ]; then
@@ -32,7 +33,7 @@ if [ ."$os_codename" = ."bullseye" ]; then
 	apt install -y python3-distutils mlocate libvpx6 swig4.0
 fi
 if [ ."$os_codename" = ."trixie" ]; then
-	apt install -y python3-distutils-extra plocate
+	apt install -y python3-distutils-extra plocate libtiff-dev libpcre2-dev swig
 fi
 if [ ."$os_codename" = ."bookworm" ]; then
 	apt install -y libvpx7 swig4.0
@@ -41,11 +42,11 @@ fi
 # additional dependencies
 apt install -y sqlite3 unzip
 
-#we are about to move out of the executing directory so we need to preserve it to return after we are done
+# preserve the executing directory, so we need to return after we are done
 CWD=$(pwd)
 
 #install the following dependencies if the switch version is greater than 1.10.0
-if [ ."$switch_version" = ."master" ] || [ $(echo "$switch_version" | tr -d '.') -gt 1100 ] || [ ."$os_codename" = ."trixie" ]; then
+if [ ."$switch_branch" = ."master" ] || [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
 
 	# libks build-requirements
 	apt install -y cmake uuid-dev
@@ -63,21 +64,35 @@ if [ ."$switch_version" = ."master" ] || [ $(echo "$switch_version" | tr -d '.')
 
 	# sofia-sip
 	cd /usr/src
-    rm -dfr sofia-sip
-    git clone https://github.com/freeswitch/sofia-sip.git
-    cd sofia-sip
-    git checkout v1.13.17
-    ./bootstrap.sh
-    ./configure
-    make
-    sudo make install
+	rm -dfr sofia-sip
+	if [ ."$sofia_version" = ."master" ]; then
+		git clone https://github.com/freeswitch/sofia-sip.git sofia-sip
+		cd sofia-sip
+	elif [ ."$os_codename" = ."trixie" ]; then
+		git clone https://github.com/freeswitch/sofia-sip.git sofia-sip
+		cd sofia-sip
+	else
+		wget https://github.com/freeswitch/sofia-sip/archive/refs/tags/v$sofia_version.zip
+		unzip v$sofia_version.zip
+		cd sofia-sip-$sofia_version
+	fi
+	sh autogen.sh
+	./configure --enable-debug
+	make -j $(getconf _NPROCESSORS_ONLN)
+	make install
 
 	# spandsp
 	cd /usr/src
 	git clone https://github.com/freeswitch/spandsp.git spandsp
 	cd spandsp
- 	#git reset --hard 0d2e6ac65e0e8f53d652665a743015a88bf048d4
- 	#/usr/bin/sed -i 's/AC_PREREQ(\[2\.71\])/AC_PREREQ([2.69])/g' /usr/src/spandsp/configure.ac
+	if [ ."$sofia_version" != ."master" ]; then
+		echo ""
+	elif [ ."$os_codename" = ."trixie" ]; then
+		echo ""
+	else
+		git reset --hard 0d2e6ac65e0e8f53d652665a743015a88bf048d4
+	fi
+	#/usr/bin/sed -i 's/AC_PREREQ(\[2\.71\])/AC_PREREQ([2.69])/g' /usr/src/spandsp/configure.ac
 	sh autogen.sh
 	./configure --enable-debug
 	make -j $(getconf _NPROCESSORS_ONLN)
@@ -88,7 +103,7 @@ fi
 cd /usr/src
 
 #check for master
-if [ ."$os_codename" = ."trixie" ] || [ ."$switch_branch" = ."master" ]; then
+if [ ."$switch_branch" = ."master" ]; then
 	#master branch
 	echo "Using version master"
 	rm -r /usr/src/freeswitch
@@ -98,7 +113,7 @@ if [ ."$os_codename" = ."trixie" ] || [ ."$switch_branch" = ."master" ]; then
 fi
 
 #check for stable release
-if [ ."$switch_branch" != ."master" ] && [ ."$os_codename" != ."trixie" ] && [ ."$switch_branch" = ."stable" ]; then
+if [ ."$switch_branch" != ."master" ] && [ ."$switch_branch" = ."stable" ]; then
 	echo "Using version $switch_version"
 	#1.8 and older
 	if [ $(echo "$switch_version" | tr -d '.') -lt 1100 ]; then
@@ -107,18 +122,22 @@ if [ ."$switch_branch" != ."master" ] && [ ."$os_codename" != ."trixie" ] && [ .
 		cd /usr/src/freeswitch-$switch_version
 
 		# Reset repo just-in-case we are rebuilding
-		git reset --hard HEAD && git clean -fdx
+		#git reset --hard HEAD && git clean -fdx
 	fi
 
 	#1.10.0 and newer
 	if [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
-
+		# Get the source code using git
 		git clone https://github.com/fusionpbx/freeswitch freeswitch-$switch_version
 
+		# Change the working directory
 		cd /usr/src/freeswitch-$switch_version
 
+		# Get the stable branch
+		git checkout $switch_version
+
 		# Reset repo just-in-case we are rebuilding
-		git reset --hard origin/master && git clean -fdx
+		#git reset --hard origin/master && git clean -fdx
 
 		#wget http://files.freeswitch.org/freeswitch-releases/freeswitch-$switch_version.-release.zip
 		#unzip freeswitch-$switch_version.-release.zip

@@ -156,17 +156,26 @@ crontab -e
 			if (!file_exists($new_path)) { system('mkdir -p '.$new_path); }
 			$command = "mv ".$old_path."/".$record_name." ".$new_path."/".$record_name;
 			if ($debug) { echo $command."\n"; }
-			system($command);
+			system($command, $move_result_code);
+
+			//skip the database update if the move failed
+			if ($move_result_code !== 0) {
+				if ($debug) { echo "mv failed with exit code ".$move_result_code.", skipping database update.\n"; }
+				continue;
+			}
+		}
+
+		//set the sql update params
+		$sql_params = [];
+		if ($action_name == 'move' || $action_name == 'both') {
+			$sql_params[] = "record_path = '".$new_path."'";
+		}
+		if ($action_name == 'convert' || $action_name == 'both') {
+			$sql_params[] = "record_name = '".$path_parts['filename'].".mp3'";
 		}
 
 		//update the database to the new directory
-		$sql = "update v_xml_cdr set \n";
-		if ($action_name == 'move' || $action_name == 'both') {
-			$sql .= "record_path = '".$new_path."' \n";
-		}
-		if ($action_name == 'convert' || $action_name == 'both') {
-			$sql .= "record_name = '".$path_parts['filename'].".mp3'\n";
-		}
+		$sql = "update v_xml_cdr set " . implode(", ", $sql_params) . " \n";
 		$sql .= "where xml_cdr_uuid = '".$row['xml_cdr_uuid']."';\n";
 		if ($debug) { echo $sql."\n"; }
 		$database->execute($sql);
