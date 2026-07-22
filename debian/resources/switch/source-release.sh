@@ -45,8 +45,8 @@ apt install -y sqlite3 unzip
 # preserve the executing directory, so we need to return after we are done
 CWD=$(pwd)
 
-#install the following dependencies if the switch version is greater than 1.10.0
-if [ ."$switch_branch" = ."master" ] || [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
+# install libks - dependency for switch versions greater than 1.10.0
+if [ ! -d /usr/src/libks ]; then
 
 	# libks build-requirements
 	apt install -y cmake uuid-dev
@@ -61,8 +61,10 @@ if [ ."$switch_branch" = ."master" ] || [ $(echo "$switch_version" | tr -d '.') 
 
 	# libks C includes
 	export C_INCLUDE_PATH=/usr/include/libks
+fi
 
-	# sofia-sip
+# sofia-sip - dependency for switch versions greater than 1.10.0
+if [ ! -d /usr/src/sofia-sip ]; then
 	cd /usr/src
 	rm -dfr sofia-sip
 	if [ ."$sofia_version" = ."master" ]; then
@@ -74,14 +76,17 @@ if [ ."$switch_branch" = ."master" ] || [ $(echo "$switch_version" | tr -d '.') 
 	else
 		wget https://github.com/freeswitch/sofia-sip/archive/refs/tags/v$sofia_version.zip
 		unzip v$sofia_version.zip
-		cd sofia-sip-$sofia_version
+		mv sofia-sip-$sofia_version sofia-sip
+		cd sofia-sip
 	fi
 	sh autogen.sh
 	./configure --enable-debug
 	make -j $(getconf _NPROCESSORS_ONLN)
 	make install
+fi
 
-	# spandsp
+# spandsp - dependency for switch versions greater than 1.10.0
+if [ ! -d /usr/src/spandsp ]; then
 	cd /usr/src
 	git clone https://github.com/freeswitch/spandsp.git spandsp
 	cd spandsp
