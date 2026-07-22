@@ -107,7 +107,7 @@ if [ ."$switch_branch" = ."master" ]; then
 	#master branch
 	echo "Using version master"
 	rm -r /usr/src/freeswitch
-	git clone -b 1.11.1-CORPIT https://github.com/yois615/freeswitch.git freeswitch-$switch_version
+	git clone -b $switch_version-CORPIT https://github.com/yois615/freeswitch.git freeswitch-$switch_version
 	cd /usr/src/freeswitch-$switch_version
 	./bootstrap.sh -j
 fi

@@ -13,7 +13,7 @@ if [ .$switch_source = .true ]; then
 		switch/source-master.sh
 	else
 		echo "RELEASE"
-		switch/source-release.sh
+		switch/source-master.sh
 	fi
 
 	#add sounds and music files
