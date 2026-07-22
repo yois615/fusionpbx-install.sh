@@ -103,59 +103,14 @@ fi
 cd /usr/src
 
 #check for master
-if [ ."$switch_branch" = ."master" ]; then
-	#master branch
-	echo "Using version master"
-	rm -r /usr/src/freeswitch
-	git clone -b $switch_version-CORPIT https://github.com/yois615/freeswitch.git freeswitch-$switch_version
-	cd /usr/src/freeswitch-$switch_version
-	./bootstrap.sh -j
-fi
 
-#check for stable release
-if [ ."$switch_branch" != ."master" ] && [ ."$switch_branch" = ."stable" ]; then
-	echo "Using version $switch_version"
-	#1.8 and older
-	if [ $(echo "$switch_version" | tr -d '.') -lt 1100 ]; then
-		wget http://files.freeswitch.org/freeswitch-releases/freeswitch-$switch_version.zip
-		unzip freeswitch-$switch_version.zip
-		cd /usr/src/freeswitch-$switch_version
+#master branch
+echo "Using version master"
+rm -r /usr/src/freeswitch
+git clone -b $switch_version-CORPIT https://github.com/yois615/freeswitch.git freeswitch-$switch_version
+cd /usr/src/freeswitch-$switch_version
+./bootstrap.sh -j
 
-		# Reset repo just-in-case we are rebuilding
-		#git reset --hard HEAD && git clean -fdx
-	fi
-
-	#1.10.0 and newer
-	if [ $(echo "$switch_version" | tr -d '.') -gt 1100 ]; then
-		# Get the source code using git
-		git clone https://github.com/fusionpbx/freeswitch freeswitch-$switch_version
-
-		# Change the working directory
-		cd /usr/src/freeswitch-$switch_version
-
-		# Get the stable branch
-		git checkout $switch_version
-
-		# Reset repo just-in-case we are rebuilding
-		#git reset --hard origin/master && git clean -fdx
-
-		#wget http://files.freeswitch.org/freeswitch-releases/freeswitch-$switch_version.-release.zip
-		#unzip freeswitch-$switch_version.-release.zip
-		#mv freeswitch-$switch_version.-release freeswitch-$switch_version
-
-		# bootstrap is needed if using git
-		./bootstrap.sh -j
-
-		#apply rtp timestamp patch - Fix RTP audio issues use the following for additional information. https://github.com/briteback/freeswitch/commit/9f8968ccabb8a4e0353016d4ea0ff99561b005f1
-		#patch -u /usr/src/freeswitch-$switch_version/src/switch_rtp.c -i /usr/src/fusionpbx-install.sh/debian/resources/switch/source/switch_rtp.diff
-
-		#apply pull request 2300 to Fix session deadlock that results in stale or stuck calls. https://github.com/signalwire/freeswitch/pull/2300
-		#patch -d /usr/src/freeswitch-$switch_version/src -i /usr/src/fusionpbx-install.sh/debian/resources/switch/source/pull_2300.diff
-
-		#apply mod_pgsql patch
-		#patch -u /usr/src/freeswitch-$switch_version/src/mod/databases/mod_pgsql/mod_pgsql.c -i /usr/src/fusionpbx-install.sh/debian/resources/switch/source/mod_pgsql.patch
-	fi
-fi
 
 # enable required modules
 #sed -i /usr/src/freeswitch/modules.conf -e s:'#applications/mod_avmd:applications/mod_avmd:'
