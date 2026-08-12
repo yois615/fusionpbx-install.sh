@@ -17,6 +17,15 @@ if [ ."$cpu_architecture" = ."arm" ]; then
 	if [ ."$os_codename" = ."bullseye" ]; then
 		php_version=7.4
 	fi
+	if [ ."$os_codename" = ."bookworm" ]; then
+		php_version=8.2
+	fi
+	if [ ."$os_codename" = ."trixie" ]; then
+		php_version=8.4
+	fi
+	if [ ."$os_codename" = ."forky" ]; then
+		php_version=8.4
+	fi
 fi
 
 #set the version of php
@@ -85,6 +94,15 @@ rm /etc/nginx/sites-enabled/default
 if [ .$letsencrypt_folder = .true ]; then
         mkdir -p /var/www/letsencrypt/
 fi
+
+# Ensure apache2 is stopped and cannot start
+if systemctl is-active --quiet apache2; then
+    verbose "Stopping Apache to clear port 80/443..."
+    systemctl stop apache2
+fi
+
+# Prevent apache from starting at boot
+systemctl disable apache2
 
 #flush systemd cache
 systemctl daemon-reload
