@@ -62,6 +62,9 @@ resources/postgresql.sh
 #FreeSWITCH
 resources/switch.sh
 
+#NodeJS
+resources/nodesource.sh
+
 #set the ip address
 server_address=$(hostname -I)
 
