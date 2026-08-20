@@ -127,4 +127,6 @@ if [ .$switch_tls = ."true" ]; then
 	#set the permissions
 	chown -R www-data:www-data /etc/freeswitch/tls
 
+	fs_cli -x 'reloadcert'
+
 fi  
