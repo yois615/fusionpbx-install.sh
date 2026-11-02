@@ -111,6 +111,9 @@ else
 	echo "not purging voicemails."
 fi
 
+echo "Delete Voicemail ZIP downloads"
+sudo -u www-data php /var/www/fusionpbx/app/voicemails/resources/jobs/voicemail_message_export.php --cleanup
+
 if [ .$purge_cdrs = .true ]; then
 	echo "delete call detail records older $days_keep_cdrs days"
 	psql $db_name --port $db_port --host=$db_host --username=$db_username -c "delete from v_xml_cdr WHERE start_stamp < NOW() - INTERVAL '$days_keep_cdrs days'"
